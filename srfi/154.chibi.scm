@@ -20,45 +20,17 @@
 ;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;; SOFTWARE.
 
-(define-library (srfi 154 test)
-  (export run-tests)
-  (import (scheme base)
-	  (srfi 64)
-	  (srfi 154))
-  (begin
-    (define (run-tests)
-      (test-begin "SRFI 154")
+(define-record-type <dynamic-extent>
+  (make-dynamic-extent point)
+  dynamic-extent?
+  (point dynamic-extent-point))
 
-      (test-assert "Dynamic extents"
-	(dynamic-extent? (current-dynamic-extent)))
+(define (current-dynamic-extent)
+  (make-dynamic-extent (%dk)))
 
-      (test-equal "Parameter bindings"
-	'b
-	(let*
-	    ((x (make-parameter 'a))
-	     (de (parameterize
-		     ((x 'b))
-		   (current-dynamic-extent))))
-	  (parameterize
-	      ((x 'c))
-	    (with-dynamic-extent
-	     de
-	     (lambda ()
-	       (x))))))
-
-      (test-equal "Closed procedures"
-	'a
-	(let* ((x (make-parameter 'a))
-	       (getter (closed-lambda () (x))))
-	  (parameterize ((x 'b))
-	    (getter))))
-
-      (test-equal "Multiple values"
-	'(1 2)
-	(call-with-values
-	    (lambda ()
-	      (with-dynamic-extent (current-dynamic-extent) (lambda ()
-							      (values 1 2))))
-	  list))
-
-      (test-end "SRFI 154"))))
+(define (with-dynamic-extent dynamic-extent thunk)
+  (let ((here (%dk)))
+    (travel-to-point! here (dynamic-extent-point dynamic-extent))
+    (let ((result (thunk)))
+      (travel-to-point! (%dk) here)
+      result)))
