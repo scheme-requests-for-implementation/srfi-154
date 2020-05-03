@@ -4,6 +4,8 @@
 
 
 
+keywords: [[https://srfi.schemers.org/?keywords=miscellaneous][Miscellaneous]]
+
 This repository hosts [[https://srfi.schemers.org/srfi-154/][SRFI 154]]: First-class dynamic extents, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /final/ status.
